@@ -30,11 +30,18 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
-    port: port,
-    open: true,
+    port: port, // 端口号
+    open: true, // 自动打开页面
     overlay: {
       warnings: false,
       errors: true
+    },
+    proxy: {
+      '/api': { // 自己请求的路径
+        target: 'http://42.192.129.12:3001',
+        // target: 'http://ihrm-java.itheima.net/', // 跨域请求的地址 真实的接口地址
+        changeOrigin: true // 只有这个值为true的情况下 才表示开启跨域
+      }
     }
   },
   configureWebpack: {

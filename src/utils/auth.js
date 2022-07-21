@@ -1,6 +1,8 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'vue_admin_template_token'
+// const TokenKey = 'vue_admin_template_token'
+// 怎么操作cookie ==> 可以借助第三方库 因为原生的会比较麻烦
+const TokenKey = 'hrsass_token' // token存储到本地存储 ==> key
 
 export function getToken() {
   return Cookies.get(TokenKey)
