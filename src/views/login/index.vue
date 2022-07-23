@@ -83,12 +83,12 @@ export default {
       loginRules: {
         mobile: [
           { required: true, trigger: 'blur', message: '手机号不能为空' },
-          { pattern: /^1[3-9]\d{9}$/, trigger: 'blur', message: '手机号格式错误'}
-          ],
+          { pattern: /^1[3-9]\d{9}$/, trigger: 'blur', message: '手机号格式错误' }
+        ],
         password: [
           { required: true, trigger: 'blur', message: '密码不能为空' },
           { min: 6, max: 16, trigger: 'blur', message: '密码长度不正确' }
-          ]
+        ]
       },
       loading: false,
       passwordType: 'password',
@@ -116,14 +116,15 @@ export default {
       })
     },
     async handleLogin() {
-      // TODO: 
+      // TODO:
       try {
-      await this.$refs.loginForm.validate()
-      this.loading = true
-      await this.login(this.loginForm)
-      this.$router.push({path: this.redirect || '/'})
-      this.loading = false
+        await this.$refs.loginForm.validate()
+        this.loading = true
+        await this.login(this.loginForm)
+        this.$router.push({ path: this.redirect || '/' })
+        this.loading = false
       } catch (error) {
+        console.log(error)
         this.loading = false
       }
       // this.$refs.loginForm.validate(valid => {
