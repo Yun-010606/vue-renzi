@@ -115,3 +115,44 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+// list ==> 待转化的数据 rootvalue ==》 根节点的pid
+// 筛选出 pid = rootValue的所有节点
+// export function transListToTree(list, rootValue) {
+//   const arr = []
+//   list.forEach(item => {
+//     if (item.pid === rootValue) {
+//       // 判断item是否有子节点？
+//       // 如果有子节点 ==> 把这些子节点作为当前item的children属性
+//       const children = transListToTree(list, item.id)
+//       if (children.length) {
+//         item.children = children
+//       }
+//       arr.push(item)
+//     }
+//   })
+//   return arr
+// }
+
+export function transListToTreeNew(list) {
+  // 构建好关系的树节点
+  const treeList = []
+  // 数组结构 ==》map映射表 ==> 方便取数据不用遍历
+  const map = {} // map[id]
+  list.forEach(item => {
+    if (!item.children) {
+      item.children = []
+    }
+    map[item.id] = item
+  })
+  list.forEach(item => {
+    // 判断当前遍历项是否有父级节点
+    const parent = map[item.pid]
+    if (parent) {
+      parent.children.push(item)
+    } else if (item.pid === '') {
+      treeList.push(item)
+    }
+  })
+  return treeList
+}

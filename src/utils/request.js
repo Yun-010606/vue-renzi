@@ -47,7 +47,7 @@ request.interceptors.response.use(response => {
 }, error => {
   // 添加一些错误的处理方式
   // 401 ==》 退出登陆 ==》跳转登录界面
-  console.dir(error)
+  // console.dir(error)
   if (error.response.status === 401) {
     // 退出登录
     store.dispatch('user/logOut')
