@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="新增部门" :visible="isShowAdddept" @close="close">
+  <el-dialog :title="showTitle" :visible="isShowAdddept" @close="close">
     <el-form ref="formRef" :model="formData" :rules="formAddRules" label-width="120px">
       <el-form-item label="部门名称" prop="name">
         <el-input v-model="formData.name" />
@@ -18,13 +18,17 @@
         </el-select>
       </el-form-item>
       <el-form-item label="部门介绍" prop="introduce">
-        <el-input v-model="formData.introduce" />
+        <el-input v-model="formData.introduce" type="textarea" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button size="small" @click="close">取消</el-button>
-        <el-button type="primary" size="small" @click="submit">确定</el-button>
+        <el-row type="flex" justify="cneter">
+          <el-col>
+            <el-button size="small" @click="close">取消</el-button>
+            <el-button type="primary" size="small" @click="submit">确定</el-button>
+          </el-col>
+        </el-row>
       </span>
     </template>
   </el-dialog>
@@ -32,7 +36,7 @@
 
 <script>
 import { getEmployeeSimple } from '@/api/employees'
-import { addDepartments, getDepartments } from '@/api/departments'
+import { addDepartments, getDepartments, getDepartDetail, updateDepartments } from '@/api/departments'
 export default {
   // 需要传入一个props变量来控制 显示或者隐藏
   props: {
@@ -51,9 +55,19 @@ export default {
       // 1.获取所有部门数据
       const { depts } = await getDepartments()
       // 2.找出当前点击部门的子部门数据有什么特点？ pid = 当前点击部门的id
-      const currentChildren = depts.filter(item => {
-        return item.pid === this.currentNode.id
-      })
+      // 编辑场景 >> 需要把自己过滤掉后再去判断
+      let currentChildren = null
+      if (this.formData.id) {
+        // 当前节点的兄弟节点
+        currentChildren = depts.filter(item => {
+          // 怎样把自己过滤掉
+          return item.pid === this.currentNode.pid && item.id !== this.currentNode.id
+        })
+      } else {
+        currentChildren = depts.filter(item => {
+          return item.pid === this.currentNode.id
+        })
+      }
       //   console.log(currentChildren)
       // 3.value值是否和筛选出来的数据结果里面的name值有重复
       const isRepeat = currentChildren.some(item => item.name === value)
@@ -68,10 +82,13 @@ export default {
     const checkCode = async(rule, value) => {
       // 1.获取所有部门数据
       const { depts } = await getDepartments()
-
-      //   2.检查编码是否有重复的
-      const isRepeat = depts.some(item => item.code === value)
-
+      let isRepeat = null
+      if (this.formData.id) {
+        isRepeat = depts.some(item => item.code === value && item.code !== this.currentNode.id)
+      } else {
+        //   2.检查编码是否有重复的
+        isRepeat = depts.some(item => item.code === value)
+      }
       if (isRepeat) {
         return Promise.reject('部门编码重复了')
       }
@@ -139,24 +156,47 @@ export default {
   //   created() {
   //     this.getEmployeeSimple()
   //   },
+  computed: {
+    showTitle() {
+      return this.formData.id ? '编辑部门' : '新增部门'
+    }
+  },
   methods: {
     async getEmployeeSimple() {
       this.options = await getEmployeeSimple()
     },
+    // 获取部门详情  add-dept.vue组件内部
+    async getDepartDetail(id) {
+      this.formData = await getDepartDetail(id)
+    },
     async submit() {
     // 表单校验
       await this.$refs.formRef.validate()
-      await addDepartments({
-        ...this.formData, // 把表单的数据对象展开
-        pid: this.currentNode.id
-      })
-      this.$message.success('添加成功')
+      if (this.formData.id) {
+        // 编辑场景
+        await updateDepartments(this.formData)
+      } else {
+      // 新增部门
+        await addDepartments({
+          ...this.formData, // 把表单的数据对象展开
+          pid: this.currentNode.id
+        })
+      }
+
+      this.$message.success(`${this.showTitle}成功`)
       this.$emit('getDepartments')
       this.close()
     },
     close() {
     // 表单数据需要重置
       this.$refs.formRef.resetFields()
+      // 重置数据  因为resetFields 只能重置 表单上的数据 非表单上的 比如 编辑中id 不能重置
+      this.formData = {
+        name: '',
+        code: '',
+        manager: '',
+        introduce: ''
+      }
       //   通过.sync提供的自定义事件修改父组件属性
       this.$emit('update:isShowAdddept', false)
     }

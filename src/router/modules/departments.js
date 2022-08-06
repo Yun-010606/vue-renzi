@@ -17,5 +17,19 @@ export default {
     }
   }]
 }
+// export default {
+//   path: '/departments',
+//   name: 'departments',
+//   redircet: '/departments/bbb',
+//   component: Layout,
+//   meta: { title: '组织架构', icon: 'tree' },
+//   children: [
+//     {
+//       path: 'bbb',
+//       name: 'bbb',
+//       component: () => import('@/views/bbb/index')
+//     }
+//   ]
+// }
 
 // 当你的访问地址 是 /employees的时候 layout组件会显示 此时 你的二级路由的默认组件  也会显示

@@ -48,7 +48,6 @@ export default {
         // 添加编辑
       } else if (type === 'edit') {
         this.$emit('handleEditDepts', this.treeData)
-        console.log('编辑')
       } else {
         // 删除逻辑
         await this.$confirm('确认删除？')
